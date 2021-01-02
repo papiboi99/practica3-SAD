@@ -1,3 +1,5 @@
+package src.server;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -14,6 +16,10 @@ import java.util.concurrent.Executors;
 public class Handler implements Runnable {
     static ExecutorService pool = Executors.newFixedThreadPool(2);
     static final int PROCESSING = 2;
+
+    static final int CLIENT_CONNECTED = 0;
+    static final int CLIENT_DISCONNECTED = 1;
+    static final int CLIENT_MESSAGE = 2;
 
     static Map<String, SocketChannel> clients = new TreeMap<>();
 
@@ -42,7 +48,7 @@ public class Handler implements Runnable {
             if (state == READING) {
                 read();
             } else if (state == SENDING) {
-                sendBroadcast();
+                sendManager(CLIENT_MESSAGE);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -52,13 +58,6 @@ public class Handler implements Runnable {
     void read() throws IOException {
         int readCount = socketChannel.read(input);
 
-        //check whether the result is equal to -1, and close the connection if it is
-        if(readCount == -1){
-            this.socketChannel.close();
-            clients.remove(clientName);
-            System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " has just left");
-            return;
-        }
         if (readCount > 0) {
             state = PROCESSING;
             pool.execute(new Processer(readCount));
@@ -107,21 +106,75 @@ public class Handler implements Runnable {
             }
             clients.put(clientName, socketChannel);
             System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " has just connected!");
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                sendManager(CLIENT_CONNECTED);
+
+            } catch (IOException e) {
+                //e.printStackTrace();
+            }
             isFirstTime = false;
         }else{
             clientMessage = sb.toString().trim();
-            System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " says: \""+clientMessage+"\"");
+            if(clientMessage.equals("EXIT")){
+                try {
+                    sendManager(CLIENT_DISCONNECTED);
+                    System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " has just left");
+                    socketChannel.close();
+                    clients.remove(clientName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }else{
+                System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " says: \""+clientMessage+"\"");
+            }
         }
     }
 
-    void sendBroadcast() throws IOException {
-        ByteBuffer output;
-        for(Map.Entry<String,SocketChannel> entry : clients.entrySet()) {
-            if (entry.getKey() != clientName && clientMessage != null){
+    void send(String text, SocketChannel s) throws IOException{
+        ByteBuffer output = ByteBuffer.wrap((text).getBytes());
+        s.write(output);
+    }
+
+    void sendManager(int type) throws IOException {
+        String toOtherClients = null;
+        switch (type) {
+            case CLIENT_CONNECTED:
+                toOtherClients = "[CLIENT CONNECTED] " + clientName + "\n";
+
+                String toMyClient = "[HELLO CLIENT] Connected at " + dateFormat.format(new Date()) +
+                        "\n[CLIENT LIST]";
+                for(Map.Entry<String,SocketChannel> entry : clients.entrySet()) {
+                    toMyClient = toMyClient + ";" + entry.getKey();
+                }
+                send(toMyClient+"\n", socketChannel);
+
+                for(Map.Entry<String,SocketChannel> entry : clients.entrySet()) {
+                    if (entry.getKey() != clientName){
+                        send(toOtherClients,entry.getValue());
+                    }
+                }
+                break;
+
+            case CLIENT_DISCONNECTED:
+                toOtherClients = "[CLIENT DISCONNECTED] " + clientName + "\n";
+                for(Map.Entry<String,SocketChannel> entry : clients.entrySet()) {
+                    if (entry.getKey() != clientName && clientMessage != null){
+                        send(toOtherClients,entry.getValue());
+                    }
+                }
+                break;
+
+            case CLIENT_MESSAGE:
                 DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-                output = ByteBuffer.wrap((dateFormat.format(new Date())+" >> ["+clientName+"]: "+clientMessage+"\n").getBytes());
-                entry.getValue().write(output);
-            }
+                toOtherClients = dateFormat.format(new Date()) +" >> ["+clientName+"]: " + clientMessage + "\n";
+                for(Map.Entry<String,SocketChannel> entry : clients.entrySet()) {
+                    if (entry.getKey() != clientName && clientMessage != null){
+                        send(toOtherClients,entry.getValue());
+                    }
+                }
+                break;
         }
         selectionKey.interestOps(SelectionKey.OP_READ);
         state = READING;

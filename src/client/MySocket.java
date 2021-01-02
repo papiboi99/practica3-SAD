@@ -1,3 +1,5 @@
+package src.client;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -5,12 +7,10 @@ public class MySocket {
     private Socket mySocket;
     private BufferedReader in;
     private PrintWriter out;
-    private String nick;
 
     //construimos un socket para conectar con un servidor indicado
     public MySocket(String nick, String host, int port) {
         try {
-            this.nick = nick;
             mySocket = new Socket(host, port);
             iniStreams();
             writeString(nick);
@@ -21,7 +21,7 @@ public class MySocket {
         }
     }
 
-    //creamos un MySocket a partir de otro Socket
+    //creamos un client.MySocket a partir de otro Socket
     public MySocket(Socket s) {
         mySocket = s;
         iniStreams();
@@ -70,6 +70,7 @@ public class MySocket {
     //cerramos el socket
     public void close() {
         try {
+            writeString("EXIT");
             in.close();
             out.close();
             mySocket.close();
