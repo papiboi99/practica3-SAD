@@ -1,6 +1,6 @@
 # practica3-SAD
 
-###INFO
+### INFO
 
 Esta práctica se ha realizado con un servidor tipo selector nio y
 patrón reactor. Además se ha usado la variante con varios agentes, 
@@ -8,7 +8,7 @@ es decir, implementando una thread pool. Se puede aumentar el número,
 de agentes para reducir tiempos pero también aumenta la carga
 de procesado.
 
-###EJECUCIÓN
+### EJECUCIÓN
 
 Para probar la aplicación se tiene que ejecutar el servidor
 y los clientes por separado. Los clientes se deben ejecutar en
@@ -22,9 +22,9 @@ Un ejemplo de ejecución sería:
 3) Hacer otro run de la clase Client e introducir segundo nombre
 4) Escribir entre clientes
 
-###MENÚS
+### MENÚS
 
-####LOGIN
+#### LOGIN
 
 - **Info Label:** Te indica que debes introducir tu nickname.
 - **Nickname Label:** Te indica donde debes introducir el nickname.
@@ -34,7 +34,7 @@ Un ejemplo de ejecución sería:
 - **Join Chat Button:** Haciendo click pasas al siguiente menú de chat (si no has introducido ningún carácter
   aparece un aviso informando al usuario del error cometido).
 
-####CHAT
+#### CHAT
 
 - **Chat Area:** Area no editable donde se printea todos los mensajes (enviados y recibidos).
   Contenido en un Scroll Pane.
