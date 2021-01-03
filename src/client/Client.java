@@ -1,7 +1,7 @@
 package src.client;
 
 import src.swing.ChatFrame;
-
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
@@ -33,7 +33,14 @@ public class Client {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 nickname = chatFrame.getLoginPanel().getNicknameField().getText();
-                connectToServer();
+                if(nickname.isEmpty()){
+                    JOptionPane.showMessageDialog(null,
+                            "Could not join the chat, please introduce a nickname",
+                            "Empty Nickname",
+                            JOptionPane.ERROR_MESSAGE);
+                }else{
+                    connectToServer();
+                }
             }
         });
     }
@@ -46,16 +53,16 @@ public class Client {
         chatFrame.getChatPanel().getSendButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                sendMessage(chatFrame.getChatPanel().getMessageField().getText());
-                chatFrame.getChatPanel().getMessageField().setText("");
-            }
-        });
-
-        // When hit enter
-        chatFrame.getChatPanel().getMessageField().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                chatFrame.getChatPanel().getSendButton().doClick();
+                String message = chatFrame.getChatPanel().getMessageField().getText();
+                if(message.isEmpty()){
+                    JOptionPane.showMessageDialog(null,
+                            "Could not send the message, please write at least one character",
+                            "Empty Message",
+                            JOptionPane.ERROR_MESSAGE);
+                }else{
+                    sendMessage(message);
+                    chatFrame.getChatPanel().getMessageField().setText("");
+                }
             }
         });
 

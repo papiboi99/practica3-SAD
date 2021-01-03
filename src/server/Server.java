@@ -15,7 +15,7 @@ public class Server {
             new Thread(reactor).start();
             System.out.println(dateFormat.format(new Date())+" [SERVER] Waiting for a connection...");
         } catch (IOException e) {
-            System.out.println(dateFormat.format(new Date())+" [SERVER] Waiting for a connection...");
+            System.out.println(dateFormat.format(new Date())+" [SERVER] An error has occurred");
         }
     }
 }

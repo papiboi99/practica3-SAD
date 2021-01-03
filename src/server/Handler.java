@@ -14,24 +14,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Handler implements Runnable {
-    static ExecutorService pool = Executors.newFixedThreadPool(2);
+    static final int READING = 0, SENDING = 1;
+    static final int CLIENT_CONNECTED = 0, CLIENT_DISCONNECTED = 1, CLIENT_MESSAGE = 2;
     static final int PROCESSING = 2;
 
-    static final int CLIENT_CONNECTED = 0;
-    static final int CLIENT_DISCONNECTED = 1;
-    static final int CLIENT_MESSAGE = 2;
-
+    static ExecutorService pool = Executors.newFixedThreadPool(2);
     static Map<String, SocketChannel> clients = new TreeMap<>();
 
     final SocketChannel socketChannel;
     final SelectionKey selectionKey;
+    final DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
     ByteBuffer input = ByteBuffer.allocate(1024);
-    static final int READING = 0, SENDING = 1;
     int state = READING;
+    boolean isFirstTime = true;
     String clientName = "";
     String clientMessage;
-    boolean isFirstTime = true;
-    final DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     Handler(Selector selector, SocketChannel c) throws IOException {
         socketChannel = c;
@@ -57,12 +55,10 @@ public class Handler implements Runnable {
 
     void read() throws IOException {
         int readCount = socketChannel.read(input);
-
         if (readCount > 0) {
             state = PROCESSING;
             pool.execute(new Processer(readCount));
         }
-        //We are interested in writing back to the client soon after read processing is done.
         selectionKey.interestOps(SelectionKey.OP_WRITE);
     }
 
@@ -107,7 +103,6 @@ public class Handler implements Runnable {
             clients.put(clientName, socketChannel);
             System.out.println(dateFormat.format(new Date())+" [SERVER] " + clientName + " has just connected!");
             try {
-                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                 sendManager(CLIENT_CONNECTED);
 
             } catch (IOException e) {
