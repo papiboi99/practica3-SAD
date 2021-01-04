@@ -24,6 +24,9 @@ Un ejemplo de ejecución sería:
 
 *El cliente que estás usando sale en el nombre de la ventana*
 
+*Si introduces un nombre que ya se esté usando automáticamente
+se te pondrá un número al final del nombre para distinguiros*
+
 ### MENÚS
 
 #### LOGIN
