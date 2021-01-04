@@ -22,6 +22,7 @@ public class Client {
     }
 
     public static void setupNickname(){
+        // When CR hit
         chatFrame.getLoginPanel().getNicknameField().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -29,6 +30,7 @@ public class Client {
             }
         });
 
+        // Join button clicked
         chatFrame.getLoginPanel().getJoinButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -66,6 +68,7 @@ public class Client {
             }
         });
 
+        // Disconnect button clicked
         chatFrame.getChatPanel().getDisconnectButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {

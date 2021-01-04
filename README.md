@@ -22,6 +22,8 @@ Un ejemplo de ejecución sería:
 3) Hacer otro run de la clase Client e introducir segundo nombre
 4) Escribir entre clientes
 
+*El cliente que estás usando sale en el nombre de la ventana*
+
 ### MENÚS
 
 #### LOGIN

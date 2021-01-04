@@ -79,18 +79,13 @@ public class Handler implements Runnable {
         }
     }
 
-    /**
-     * Processing of the read message. This only prints the message to stdOut.
-     *
-     * @param readCount
-     */
     synchronized void readProcess(int readCount) {
         StringBuilder sb = new StringBuilder();
         input.flip();
         byte[] subStringBytes = new byte[readCount];
         byte[] array = input.array();
         System.arraycopy(array, 0, subStringBytes, 0, readCount);
-        // Assuming ASCII (bad assumption but simplifies the example)
+        // Assuming ASCII (bad assumption but works for this case)
         sb.append(new String(subStringBytes));
         input.clear();
 
@@ -133,7 +128,7 @@ public class Handler implements Runnable {
     }
 
     void sendManager(int type) throws IOException {
-        String toOtherClients = null;
+        String toOtherClients;
         switch (type) {
             case CLIENT_CONNECTED:
                 toOtherClients = "[CLIENT CONNECTED] " + clientName + "\n";
